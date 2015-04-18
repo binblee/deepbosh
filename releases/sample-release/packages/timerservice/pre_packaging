@@ -1,0 +1,6 @@
+# abort script on any command that exits with a non zero value
+set -e -x
+
+cd ${BUILD_DIR}/timerservice
+echo "build timerservice in ${BUILD_DIR}/timerservice" > /tmp/log
+go build -o ${BUILD_DIR}/timerservice/timerservice timer.go

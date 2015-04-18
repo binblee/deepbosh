@@ -1,0 +1,15 @@
+---
+name: timerservice
+templates:
+  timerservice_ctl.erb: bin/timerservice_ctl
+packages:
+  - common
+  - timerservice
+
+properties:
+  timerservice.interval:
+    description: "sample parameter"
+    default: 2
+  timerservice.install_path:
+    description: "path to timerservice"
+    default: "/var/vcap/packages/timerservice"

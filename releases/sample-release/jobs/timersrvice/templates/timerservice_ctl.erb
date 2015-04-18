@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -e # exit immediately if a simple command exits with a non-zero status
+set -u # report the usage of uninitialized variables
+
+source /var/vcap/packages/common/utils.sh
+
+JOB_NAME=timerservice
+JOB_EXE=timerservice
+RUN_DIR=/var/vcap/sys/run/$JOB_NAME
+LOG_DIR=/var/vcap/sys/log/$JOB_NAME
+PIDFILE=$RUN_DIR/$JOB_NAME.pid
+PACKAGE_DIR=<%= p("timerservice.install_path")%>
+PARAM=<%= p("timerservice.interval") %>
+
+case $1 in
+
+  start)
+    pid_guard $PIDFILE $JOB_NAME
+
+    mkdir -p $RUN_DIR
+    mkdir -p $LOG_DIR
+
+    $PACKAGE_DIR/$JOB_EXE --interval $PARAM &
+
+    echo `pidof -s $JOB_EXE` > $PIDFILE
+
+    ;;
+
+
+  stop)
+    kill_and_wait $PIDFILE
+
+    ;;
+  *)
+    echo "Usage: timerservice_ctl {start|stop}"
+
+    ;;
+
+esac
+exit 0

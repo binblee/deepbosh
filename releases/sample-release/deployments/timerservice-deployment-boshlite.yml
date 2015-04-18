@@ -1,0 +1,57 @@
+---
+<%
+name="bin-timerservice-test"
+%>
+
+name: timerservice
+director_uuid: c6f166bd-ddac-4f7d-9c57-d11c6ad5133b
+
+releases:
+- name: timerservice
+  version: 0+dev.19
+
+compilation:
+  workers: 1
+  network: default
+  reuse_compilation_vms: true
+  cloud_properties:
+    name: random
+
+update:
+  canaries: 0
+  canary_watch_time: 1000-180000
+  update_watch_time: 1000-180000
+  max_in_flight: 1
+  serial: true
+
+networks:
+- name: default
+  type: dynamic
+  cloud_properties:
+    name: random
+
+resource_pools:
+
+- name: coreTimerserviceNode
+  network: default
+  size: 1
+  stemcell:
+      name: bosh-warden-boshlite-ubuntu-trusty-go_agent
+      version: latest
+  cloud_properties:
+      name: random
+
+jobs:
+
+- name: timerservice
+  templates:
+  - name: timerservice
+    release: timerservice
+  instances: 1
+  resource_pool: coreTimerserviceNode
+  networks:
+  - name: default
+
+properties:
+  timerservice:
+    interval: 5

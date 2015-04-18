@@ -1,0 +1,5 @@
+check process timerservice
+  with pidfile /var/vcap/sys/run/timerservice/timerservice.pid
+  start program "/var/vcap/jobs/timerservice/bin/timerservice_ctl start"
+  stop program "/var/vcap/jobs/timerservice/bin/timerservice_ctl stop"
+  group vcap
