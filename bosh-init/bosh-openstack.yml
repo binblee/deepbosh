@@ -1,0 +1,132 @@
+---
+name: bosh
+
+releases:
+- name: bosh
+  url: https://bosh.io/d/github.com/cloudfoundry/bosh?v=158
+  sha1: a97811864b96bee096477961b5b4dadd449224b4
+- name: http://bosh.io/d/github.com/cloudfoundry-incubator/bosh-openstack-cpi-release?v=4
+  url: file://./bosh-openstack-cpi-release-4.tgz
+  sha1: f09b11aa0329a8054db9fd4b67d62992f1b8b974
+
+resource_pools:
+- name: vms
+  network: private
+  stemcell:
+    url: https://bosh.io/d/stemcells/bosh-openstack-kvm-ubuntu-trusty-go_agent?v=2950
+    sha1: 7cd2a246ad24b2e8116686a89c5bd97fff815763
+  cloud_properties:
+    instance_type: m1.large
+
+disk_pools:
+- name: disks
+  disk_size: 20_000
+
+networks:
+- name: private
+  type: manual
+  subnets:
+  - range: <private subnet>/24
+    gateway: <private subnet gateway>
+    dns: [8.8.8.8]
+    cloud_properties: {net_id: <network_id>}
+- name: public
+  type: vip
+
+jobs:
+- name: bosh
+  instances: 1
+
+  templates:
+  - {name: nats, release: bosh}
+  - {name: redis, release: bosh}
+  - {name: postgres, release: bosh}
+  - {name: blobstore, release: bosh}
+  - {name: director, release: bosh}
+  - {name: health_monitor, release: bosh}
+  - {name: registry, release: bosh}
+  - {name: cpi, release: bosh-openstack-cpi}
+
+  resource_pool: vms
+  persistent_disk_pool: disks
+
+  networks:
+  - name: private
+    static_ips: [<private ip>]
+    default: [dns, gateway]
+  - name: public
+    static_ips: [<floating ip>]
+
+  properties:
+    nats:
+      address: 127.0.0.1
+      user: nats
+      password: nats-password
+
+    redis:
+      listen_addresss: 127.0.0.1
+      address: 127.0.0.1
+      password: redis-password
+
+    postgres: &db
+      host: 127.0.0.1
+      user: postgres
+      password: postgres-password
+      database: bosh
+      adapter: postgres
+
+    registry:
+      address: <private ip>
+      host: <private ip>
+      db: *db
+      http: {user: admin, password: admin, port: 25777}
+      username: admin
+      password: admin
+      port: 25777
+
+    blobstore:
+      address: <private ip>
+      port: 25250
+      provider: dav
+      director: {user: director, password: director-password}
+      agent: {user: agent, password: agent-password}
+
+    director:
+      address: 127.0.0.1
+      name: my-bosh
+      db: *db
+      cpi_job: cpi
+      max_threads: 3
+
+    hm:
+      http: {user: hm, password: hm-password}
+      director_account: {user: admin, password: admin}
+      resurrector_enabled: true
+
+    openstack: &openstack
+      auth_url: http://<auth_url>:5000/v2.0
+      tenant: <tenat name>
+      username: <admin>
+      api_key: <password>
+      default_key_name: <default key name>
+      default_security_groups: [<security group name>]
+
+    agent: {mbus: "nats://nats:nats-password@<private ip>:4222"}
+
+    ntp: &ntp [0.pool.ntp.org, 1.pool.ntp.org]
+
+cloud_provider:
+  template: {name: cpi, release: bosh-openstack-cpi}
+
+  ssh_tunnel:
+    host: <floating ip>
+    port: 22
+    user: vcap
+    private_key: ./<private key name>.pem
+  mbus: "https://mbus:mbus-password@<floating ip>:6868"
+
+  properties:
+    openstack: *openstack
+    agent: {mbus: "https://mbus:mbus-password@0.0.0.0:6868"}
+    blobstore: {provider: local, path: /var/vcap/micro_bosh/data/cache}
+    ntp: *ntp
