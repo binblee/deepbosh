@@ -5,8 +5,8 @@ releases:
 - name: bosh
   url: https://bosh.io/d/github.com/cloudfoundry/bosh?v=158
   sha1: a97811864b96bee096477961b5b4dadd449224b4
-- name: http://bosh.io/d/github.com/cloudfoundry-incubator/bosh-openstack-cpi-release?v=4
-  url: file://./bosh-openstack-cpi-release-4.tgz
+- name: bosh-openstack-cpi
+  url: http://bosh.io/d/github.com/cloudfoundry-incubator/bosh-openstack-cpi-release?v=4
   sha1: f09b11aa0329a8054db9fd4b67d62992f1b8b974
 
 resource_pools:
