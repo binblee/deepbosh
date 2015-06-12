@@ -3,18 +3,18 @@ name: bosh
 
 releases:
 - name: bosh
-  url: https://bosh.io/d/github.com/cloudfoundry/bosh?v=158
-  sha1: a97811864b96bee096477961b5b4dadd449224b4
+  url: https://bosh.io/d/github.com/cloudfoundry/bosh?v=173
+  sha1: 6405d62c144f48b361073e85be4337af44c9bc4c
 - name: bosh-openstack-cpi
-  url: http://bosh.io/d/github.com/cloudfoundry-incubator/bosh-openstack-cpi-release?v=4
-  sha1: f09b11aa0329a8054db9fd4b67d62992f1b8b974
+  url: http://bosh.io/d/github.com/cloudfoundry-incubator/bosh-openstack-cpi-release?v=8
+  sha1: 6110cb3a39e2f4491562ae48fcc6cf9cbcf3ed7d
 
 resource_pools:
 - name: vms
   network: private
   stemcell:
-    url: https://bosh.io/d/stemcells/bosh-openstack-kvm-ubuntu-trusty-go_agent?v=2950
-    sha1: 7cd2a246ad24b2e8116686a89c5bd97fff815763
+    url: https://bosh.io/d/stemcells/bosh-openstack-kvm-ubuntu-trusty-go_agent?v=2983
+    sha1: e837bc7355b78d4da4b9d5fbf140b7c00bf69fa2
   cloud_properties:
     instance_type: m1.large
 
